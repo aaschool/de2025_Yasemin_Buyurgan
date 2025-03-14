@@ -1,0 +1,49 @@
+// Node.js Backend - Queue System
+// Handles queue updates from Arduino and sends data to p5.js via WebSockets
+
+const express = require("express");
+const http = require("http");
+const socketIo = require("socket.io");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
+
+app.use(cors());
+app.use(bodyParser.json());
+
+let queueCount = 0;  // Stores the latest queue count
+
+// Endpoint to receive queue data from Arduino
+app.post("/update_queue", (req, res) => {
+    const { queue_count } = req.body;
+    if (queue_count !== undefined) {
+        queueCount = queue_count;
+        io.emit("queue_update", queueCount);  // Send update via WebSocket
+        console.log(`Updated queue count: ${queueCount}`);
+        res.status(200).send({ message: "Queue updated successfully." });
+    } else {
+        res.status(400).send({ error: "Invalid data format." });
+    }
+});
+
+// WebSocket connection for real-time updates
+io.on("connection", (socket) => {
+    console.log("Client connected");
+    socket.emit("queue_update", queueCount);  // Send latest count on connect
+
+    socket.on("disconnect", () => {
+        console.log("Client disconnected");
+    });
+});
+
+// API to get current queue count
+app.get("/queue_status", (req, res) => {
+    res.json({ queue_count: queueCount });
+});
+
+server.listen(3000, () => {
+    console.log("Server running on port 3000");
+});
