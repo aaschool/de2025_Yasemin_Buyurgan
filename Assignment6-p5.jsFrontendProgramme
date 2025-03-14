@@ -1,0 +1,65 @@
+// p5.js Frontend - Print Center Queue Widget + Main UI
+// Connects to WebSocket for real-time queue updates
+
+let socket;
+let queueCount = 0;
+let soundEnabled = true;
+let vibrationEnabled = true;
+let notificationsEnabled = true;
+
+function setup() {
+    createCanvas(400, 600);
+    socket = io("http://your-server-ip"); // Update with your server IP
+    socket.on("queue_update", (count) => {
+        queueCount = count;
+        if (soundEnabled) playSound();
+        if (vibrationEnabled) navigator.vibrate(200);
+        if (notificationsEnabled) sendNotification();
+    });
+
+    createUI();
+}
+
+function draw() {
+    background(255);
+    textSize(24);
+    textAlign(CENTER, CENTER);
+    text("Print Center Live Queue Counter", width / 2, 50);
+    
+    // Display queue count
+    fill(230);
+    rect(100, 100, 200, 50, 10);
+    fill(0);
+    text(`Current Queue: ${queueCount} People`, width / 2, 125);
+}
+
+function createUI() {
+    let soundToggle = createCheckbox("Sound", true);
+    soundToggle.position(150, 200);
+    soundToggle.changed(() => soundEnabled = soundToggle.checked());
+
+    let vibrationToggle = createCheckbox("Vibration", true);
+    vibrationToggle.position(150, 250);
+    vibrationToggle.changed(() => vibrationEnabled = vibrationToggle.checked());
+
+    let notificationsToggle = createCheckbox("Notifications", true);
+    notificationsToggle.position(150, 300);
+    notificationsToggle.changed(() => notificationsEnabled = notificationsToggle.checked());
+
+    let addWidgetBtn = createButton("Add Widget to Lockscreen");
+    addWidgetBtn.position(125, 350);
+    addWidgetBtn.mousePressed(() => alert("Widget added to lockscreen!"));
+}
+
+function playSound() {
+    let beep = new Audio("https://www.soundjay.com/button/beep-07.wav");
+    beep.play();
+}
+
+function sendNotification() {
+    if (Notification.permission === "granted") {
+        new Notification("Queue Update", { body: `Queue: ${queueCount} People` });
+    } else {
+        Notification.requestPermission();
+    }
+}
