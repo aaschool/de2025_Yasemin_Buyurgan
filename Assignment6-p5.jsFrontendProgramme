@@ -1,5 +1,5 @@
-// p5.js Frontend - Print Center Queue Widget + Main UI
-// Connects to WebSocket for real-time queue updates
+// p5.js Frontend - Print Center Queue Widget + Main UI with AI People Counting
+// Connects to WebSocket for real-time queue updates from ESP32-CAM
 
 let socket;
 let queueCount = 0;
