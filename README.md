@@ -64,7 +64,6 @@ print-center-queue
 
 ### **Node.js Backend (Server)**
 - Receives **queue count** from ESP32-CAM.
-- Stores queue history in **MongoDB (Optional)**.
 - Uses **WebSockets** to send live updates to the frontend.
 
 ### **p5.js Frontend (Queue Counter UI)**
